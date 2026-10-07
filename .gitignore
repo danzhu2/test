@@ -1,0 +1,11 @@
+DebugConfig/
+Listings/
+Objects/
+*.uvguix.*
+*.axf
+*.hex
+*.o
+*.crf
+*.map
+*.bak
+*.log
