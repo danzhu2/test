@@ -2,17 +2,16 @@
 #include "Tick.h"
 
 #define KEY_NUM			4
-#define KEY_DEBOUNCE_MS	20			/* 消抖时间，抖动大的按键可加大到 30~50 */
+#define KEY_DEBOUNCE_MS	20			//消抖时间
 
-/* 按键接线：一端接单片机 IO，一端接 GND，IO 配置为上拉输入 → 按下读到低电平。
- * 按键数量少的话可把 KEY3 / KEY4 的引脚留空，但赛题要求 4 个按键，这里全部保留。 */
+/* 按键接线：一端接单片机 IO，一端接 GND，IO 配置为上拉输入 → 按下读到低电平。*/
 typedef struct
 {
 	GPIO_TypeDef *port;
 	uint16_t      pin;
 } KeyPin_t;
 
-static const KeyPin_t KeyPin[KEY_NUM] =
+const KeyPin_t KeyPin[KEY_NUM] =
 {
 	{GPIOB, GPIO_Pin_0 },			/* KEY1  -> PB0  */
 	{GPIOB, GPIO_Pin_1 },			/* KEY2  -> PB1  */
@@ -33,18 +32,18 @@ void Key_Init(void)
 }
 
 /* 读原始电平：1 = 松开，0 = 按下 */
-static uint8_t Key_ReadRaw(uint8_t index)
+uint8_t Key_ReadRaw(uint8_t index)
 {
 	return GPIO_ReadInputDataBit(KeyPin[index].port, KeyPin[index].pin) ? 1 : 0;
 }
 
 uint8_t Key_Scan(void)
 {
-	static uint8_t  rawLast[KEY_NUM]    = {1, 1, 1, 1};		/* 上一次读到的原始电平 */
-	static uint8_t  stable[KEY_NUM]     = {1, 1, 1, 1};		/* 已确认的稳定状态 */
-	static uint32_t changeTick[KEY_NUM] = {0};				/* 电平最后一次变化的时刻 */
+	uint8_t  rawLast[KEY_NUM]    = {1, 1, 1, 1};		/* 上一次读到的原始电平 */
+	uint8_t  stable[KEY_NUM]     = {1, 1, 1, 1};		/* 已确认的稳定状态 */
+	uint32_t changeTick[KEY_NUM] = {0};				/* 电平最后一次变化的时刻 */
 
-	uint32_t now = Tick_Get();
+	uint32_t now = Tick_Get();           //获取当前系统的时间，与最后一次跳变的时间结合判断消抖时间
 	uint8_t  i;
 
 	for (i = 0; i < KEY_NUM; i++)
@@ -54,7 +53,7 @@ uint8_t Key_Scan(void)
 		if (raw != rawLast[i])
 		{
 			/* 电平刚变化，重新开始计时（抖动期间会反复刷新） */
-			rawLast[i]    = raw;
+			rawLast[i]    = raw;        //用循环不断读取电平状态，储存到数组里
 			changeTick[i] = now;
 		}
 		else if ((now - changeTick[i]) >= KEY_DEBOUNCE_MS && stable[i] != raw)

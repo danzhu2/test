@@ -22,3 +22,11 @@ void Menu_HandleKey(uint8_t key);
 void Menu_Task(void);
 
 Page_t Menu_GetPage(void);				/* 查询当前页面（供其他模块判断状态） */
+
+/* ---------- 变量 a 的读写接口（赛题第 3 项 b / c） ----------
+ * 变量 a 本体是 menu.c 里的 static 变量，串口模块通过这两个函数读写它，
+ * 不直接碰内部变量，方便以后调试时加断点。 */
+int32_t Menu_GetA(void);
+void    Menu_SetA(int32_t value);		/* 写入后在信息显示页会自动刷新 */
+
+#endif

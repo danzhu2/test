@@ -705,6 +705,41 @@
               <FileType>5</FileType>
               <FilePath>.\Hardware\Tick.h</FilePath>
             </File>
+            <File>
+              <FileName>OLED.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\stm32项目\4-1 OLED Montior\Hardware\OLED.c</FilePath>
+            </File>
+            <File>
+              <FileName>OLED.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\stm32项目\4-1 OLED Montior\Hardware\OLED.h</FilePath>
+            </File>
+            <File>
+              <FileName>OLED_Font.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\stm32项目\4-1 OLED Montior\Hardware\OLED_Font.h</FilePath>
+            </File>
+            <File>
+              <FileName>serial.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\serial.c</FilePath>
+            </File>
+            <File>
+              <FileName>serial.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\serial.h</FilePath>
+            </File>
+            <File>
+              <FileName>util.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\util.c</FilePath>
+            </File>
+            <File>
+              <FileName>util.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\util.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

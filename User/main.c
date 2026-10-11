@@ -1,20 +1,31 @@
 #include "stm32f10x.h"			
 #include "oled.h"				
-#include "tick.h"				
-#include "key.h"				
-#include "led.h"				
-#include "menu.h"				
+#include "tick.h"				/* 1ms 时基 */
+#include "key.h"				/* 4 个按键的非阻塞扫描 */
+#include "led.h"				/* 两个 LED */
+#include "serial.h"				/* USART1 串口通信（第 3 项 b / c） */
+#include "menu.h"				/* 菜单状态机 */
 
+/* ============================================================================
+ *  2026 DEBUG 软件组赛题 · 基础第 1 / 2 / 3 项主程序
+ *
+ *  结构说明（这就是"非阻塞式主循环"的基本形态）：
+ *    - main 里只做四件事：初始化 -> 取按键事件 -> 跑各模块的任务 -> 刷新界面
+ *    - 每个任务函数内部都是"该干活就干活，不该干活立刻返回"，全程没有 delay 死等
+ *    - 所以 LED 闪烁、串口接收、菜单刷新可以同时进行，互不影响
+ * ==========================================================================*/
 
 int main(void)
 {
-	Tick_Init();			
-	Key_Init();				
-	Led_Init();				
-	OLED_Init();			
+	/* ---------- 初始化（顺序：时基最早，因为按键消抖和 LED 闪烁都依赖它） ---------- */
+	Tick_Init();			/* 1ms 时基，开启 TIM2 中断 */
+	Key_Init();				/* 4 个按键，上拉输入 */
+	Led_Init();				/* 两个 LED，默认全灭 */
+	Serial_Init();			/* USART1，PA9 = TX、PA10 = RX */
+	OLED_Init();			/* OLED 初始化 */
 
-	Menu_Init();			
-	Menu_Task();			
+	Menu_Init();			/* 菜单状态清零：主菜单 + 箭头指向首行 + 变量 a = 0 */
+	Menu_Task();			/* 上电后先把主菜单画出来 */
 
 	while (1)
 	{
@@ -27,7 +38,15 @@ int main(void)
 			Menu_HandleKey(key);
 		}
 
-		/* 3. 界面需要更新时才重绘（内部有 s_dirty 标志判断） */
+		/* 3. LED 任务：负责交替闪烁的时序（第 2 项 b） */
+		Led_Task();
+
+		/* 4. 串口任务：解析并执行上位机指令（第 3 项 b / c）
+		 *    必须放在 Menu_Task() 之前：先改完变量 a，再让界面刷新，一帧都不会拖 */
+		Serial_Task();
+
+		/* 5. 界面需要更新时才重绘（内部有 s_dirty 标志判断） */
 		Menu_Task();
 	}
 }
+
