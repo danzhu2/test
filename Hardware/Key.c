@@ -37,11 +37,16 @@ uint8_t Key_ReadRaw(uint8_t index)
 	return GPIO_ReadInputDataBit(KeyPin[index].port, KeyPin[index].pin) ? 1 : 0;
 }
 
-uint8_t Key_Scan(void)
+uint8_t Key_Scan(void)    //判断是否按下
 {
-	uint8_t  rawLast[KEY_NUM]    = {1, 1, 1, 1};		/* 上一次读到的原始电平 */
-	uint8_t  stable[KEY_NUM]     = {1, 1, 1, 1};		/* 已确认的稳定状态 */
-	uint32_t changeTick[KEY_NUM] = {0};				/* 电平最后一次变化的时刻 */
+	/* ⚠️【易错·致命】这三个数组必须加 static！
+	 * 不加 static = 每次调用 Key_Scan() 它们都被重新初始化成"全松开"，
+	 * 于是按键按住时 raw(0) 永远 != rawLast(1)，changeTick 被一遍遍刷新成 now，
+	 * "连续保持 20ms"永远不满足 —— 表现为按键完全失灵，而且编译无任何警告。
+	 * static 让它们在两次调用之间"记住"上次的电平和计时，消抖才成立。 */
+	static uint8_t  rawLast[KEY_NUM]    = {1, 1, 1, 1};	  /* 上一次读到的原始电平 */ //四个按键四个电平，与下面平稳后作比较
+	static uint8_t  stable[KEY_NUM]     = {1, 1, 1, 1};		/* 已确认的稳定状态 */
+	static uint32_t changeTick[KEY_NUM] = {0};				/* 电平最后一次变化的时刻 */
 
 	uint32_t now = Tick_Get();           //获取当前系统的时间，与最后一次跳变的时间结合判断消抖时间
 	uint8_t  i;
@@ -50,13 +55,13 @@ uint8_t Key_Scan(void)
 	{
 		uint8_t raw = Key_ReadRaw(i);
 
-		if (raw != rawLast[i])
+		if (raw != rawLast[i])    //判断是否按下
 		{
 			/* 电平刚变化，重新开始计时（抖动期间会反复刷新） */
 			rawLast[i]    = raw;        //用循环不断读取电平状态，储存到数组里
 			changeTick[i] = now;
 		}
-		else if ((now - changeTick[i]) >= KEY_DEBOUNCE_MS && stable[i] != raw)
+		else if ((now - changeTick[i]) >= KEY_DEBOUNCE_MS && stable[i] != raw)    //平稳的电平与初始电平不一
 		{
 			/* 连续 20ms 保持同一电平 → 确认状态 */
 			stable[i] = raw;

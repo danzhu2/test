@@ -3,8 +3,8 @@
 
 #include "stm32f10x.h"
 
-/* 两个 LED 的引脚定义：按你的实际接线修改。
-  这里的接法默认"低电平点亮"（IO 输出低 → LED 亮）*/
+//两个 LED 的引脚定义：按实际接线修改。
+  
 #define LED1_GPIO_PORT	GPIOC
 #define LED1_GPIO_PIN	GPIO_Pin_13		//宏定义引脚和端口，改引脚只需要在定义处改
 
@@ -24,8 +24,10 @@ typedef enum
 
 void      Led_Init(void);
 
+
 /* 主循环里反复调用，用来推进交替闪烁的时序（非阻塞，不闪烁时立刻返回） */
 void      Led_Task(void);
+
 
 /* 切换工作模式：一次把两个 LED 设成该模式应有的状态 */
 void      Led_SetMode(LedMode_t mode);
@@ -35,7 +37,6 @@ LedMode_t Led_GetMode(void);
 uint8_t   Led1_IsOn(void);
 uint8_t   Led2_IsOn(void);
 
-void Led_Init(void);
 void Led1_On(void);
 void Led1_Off(void);
 void Led1_Toggle(void);

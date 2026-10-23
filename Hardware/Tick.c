@@ -1,6 +1,6 @@
 #include "tick.h"
 
-volatile uint32_t s_tick = 0;
+volatile uint32_t s_tick = 0;  //volatile  告诉编译器“它随时会被程序之外的东西改，每次都必须真去内存读”
 
 /* 说明：TIM2 挂在 APB1 上，APB1 分频系数不为 1 时定时器时钟为 72MHz。
  * 72MHz / 7200 = 10kHz  →  计数 10 次 = 1ms  */
@@ -43,8 +43,8 @@ void TIM2_IRQHandler(void)
 {
 	if (TIM_GetITStatus(TIM2, TIM_IT_Update) == SET)    //判断是否是更新中断
 	{
-		s_tick++;
+		s_tick++;     //每毫秒加一
 		TIM_ClearITPendingBit(TIM2, TIM_FLAG_Update);
 	}
-}
+}   
 
