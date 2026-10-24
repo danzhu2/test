@@ -4,13 +4,13 @@
 #include "OLED.h"
 #include "util.h"			/* Util_IntToStr */
 #include "tick.h"
-#include "Sensor.h"			/* 【升级新增】巡线页显示 8 路传感器 */
-#include "LineFollow.h"		/* 【升级新增】发车 / 圈数 / 计时 */
-#include "FlashSave.h"		/* 【升级新增】拓展页参数编辑与保存 */
-#include "Buzzer.h"			/* 【升级新增】参数保存成功提示音 */
+#include "Sensor.h"			/* 巡线页显示 8 路传感器 */
+#include "LineFollow.h"		/* 发车 / 圈数 / 计时 */
+#include "FlashSave.h"		/* 拓展页参数编辑与保存 */
+#include "Buzzer.h"			/* 参数保存成功提示音 */
 
 /* ============================================================================
- *  2026 DEBUG 软件组赛题 · 菜单状态机【升级版】
+ *  2026 DEBUG 软件组赛题 · 菜单状态机
  *
  *  在原版（基础 1/2/3 项）基础上：
  *   - 巡线页（PAGE_LINE）：4a 传感器显示、4b/4c 发车圈数计时
@@ -37,13 +37,13 @@ const Page_t MainItemPage[] =
 	PAGE_EXT
 };
 
-#define MAIN_ITEM_NUM	(sizeof(MainItemName) / sizeof(MainItemName[0]))
+#define MAIN_ITEM_NUM	(sizeof(MainItemName) / sizeof(MainItemName[0]))     
 
 /* ---------------------------- 菜单状态 ---------------------------------- */
 
 static Page_t  s_page      = PAGE_MAIN;
 static uint8_t s_mainIndex = 0;
-static uint8_t s_dirty     = 1;
+static uint8_t s_dirty     = 1;            //判断是否需要重绘
 
 /* 变量 a。上电初值必须是 0（评分点） */
 static int32_t s_a = 0;
@@ -105,7 +105,7 @@ void Menu_SetA(int32_t value)
 	}
 }
 
-void Menu_HandleKey(uint8_t key)
+void Menu_HandleKey(uint8_t key)         //处理一次按键事件
 {
 	switch (s_page)
 	{
@@ -113,7 +113,7 @@ void Menu_HandleKey(uint8_t key)
 	case PAGE_MAIN:
 		if (key == KEY_1)
 		{
-			s_mainIndex = (uint8_t)((s_mainIndex + MAIN_ITEM_NUM - 1) % MAIN_ITEM_NUM);
+			s_mainIndex = (uint8_t)((s_mainIndex + MAIN_ITEM_NUM - 1) % MAIN_ITEM_NUM);      //行数索引       加页数取模防止页数超出
 			s_dirty = 1;
 		}
 		else if (key == KEY_2)
@@ -136,7 +136,7 @@ void Menu_HandleKey(uint8_t key)
 			s_dirty = 1;
 			Menu_BackToMain();
 		}
-		else if (key == KEY_1)
+		else if (key == KEY_1)      //控制LED开关
 		{
 			if (Led_GetMode() == LED_MODE_ON)
 			{
@@ -148,7 +148,7 @@ void Menu_HandleKey(uint8_t key)
 			}
 			s_dirty = 1;
 		}
-		else if (key == KEY_2)
+		else if (key == KEY_2)      //LED闪烁
 		{
 			Led_SetMode(LED_MODE_BLINK);
 			s_dirty = 1;
@@ -172,7 +172,7 @@ void Menu_HandleKey(uint8_t key)
 			Line_StartRun();
 			s_dirty = 1;
 		}
-		else if (key == KEY_4)
+		else if (key == KEY_4)      //按键4退出
 		{
 			/* 车还在跑时禁止退出巡线页 —— 防止跑飞了没人管。
 			 * 想退出：等完赛自动停，或者直接断电重启 */

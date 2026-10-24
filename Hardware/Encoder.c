@@ -2,7 +2,7 @@
 #include "Encoder.h"
 
 /* ============================================================================
- *  【新增文件】编码器接口模式实现
+ *  编码器接口模式实现
  *
  *  几个容易踩的点：
  *   1. TIM3/TIM4 挂在 APB1，时钟使能要用 RCC_APB1PeriphClockCmd（用错外设不转）。
@@ -16,7 +16,7 @@
 #define ENC_L_INVERT	0
 #define ENC_R_INVERT	1
 
-static void EncoderTimInit(TIM_TypeDef *tim, uint16_t ch1Pin, uint16_t ch2Pin,
+void EncoderTimInit(TIM_TypeDef *tim, uint16_t ch1Pin, uint16_t ch2Pin,
                            GPIO_TypeDef *port, uint8_t apb1)
 {
 	GPIO_InitTypeDef        GPIO_InitStructure;
@@ -39,7 +39,7 @@ static void EncoderTimInit(TIM_TypeDef *tim, uint16_t ch1Pin, uint16_t ch2Pin,
 	TIM_TimeBaseInit(tim, &TIM_TimeBaseInitStructure);
 
 	/* 编码器接口模式的关键配置：TI1 和 TI2 都计数（×4 倍频），极性不反相 */
-	TIM_EncoderInterfaceConfig(tim, TIM_EncoderMode_12,
+	TIM_EncoderInterfaceConfig(tim, TIM_EncoderMode_TI12,
 	                           TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);
 
 	TIM_ICStructInit(&TIM_ICInitStructure);
@@ -59,13 +59,13 @@ void Encoder_Init(void)
 	EncoderTimInit(TIM4, GPIO_Pin_6, GPIO_Pin_7, GPIOB, RCC_APB1Periph_TIM4);	/* 右：PB6/PB7 */
 }
 
-static int16_t EncoderRead(TIM_TypeDef *tim, uint8_t invert)
+int16_t EncoderRead(TIM_TypeDef *tim, uint8_t invert)
 {
 	int16_t cnt = (int16_t)TIM_GetCounter(tim);		/* uint16 强转 int16：回绕自动正确 */
 
 	TIM_SetCounter(tim, 0);							/* 读完清零，下次读到的是增量 */
 
-	return invert ? (int16_t)(-cnt) : cnt;
+	return invert ? (int16_t)(-cnt) : cnt;      //读取寄存器的值，判断正反，返回速度
 }
 
 int16_t Encoder_GetLeft(void)

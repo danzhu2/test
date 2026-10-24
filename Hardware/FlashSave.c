@@ -2,7 +2,7 @@
 #include "FlashSave.h"
 
 /* ============================================================================
- *  【新增文件】Flash 参数读写实现
+ *  Flash 参数读写实现
  * ==========================================================================*/
 
 /* ⚠️【需修改】参数存放页地址。C8T6（64KB）取最后一页 0x0800FC00。
@@ -13,7 +13,7 @@
 Params_t g_params;
 
 /* Flash 整页读出到内存：直接用指针读即可（Flash 的读和读 SRAM 一样） */
-static void FlashRead(Params_t *out)
+void FlashRead(Params_t *out)
 {
 	uint16_t *src = (uint16_t *)PARAM_FLASH_ADDR;
 	uint16_t *dst = (uint16_t *)out;

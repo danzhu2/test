@@ -8,7 +8,7 @@
 #include "tick.h"
 
 /* ============================================================================
- *  【新增文件】巡线核心实现
+ *  巡线核心实现
  *
  *  总体控制结构（每 5ms 执行一次）：
  *
@@ -196,7 +196,7 @@ void Line_Task(void)
 	}
 	s_lastCtrlTick = now;
 
-	word     = Sensor_Read();
+	word     = Sensor_Read();       //读取传感器电平
 	onCount  = 0;
 	{
 		uint8_t i;

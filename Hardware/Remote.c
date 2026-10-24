@@ -5,7 +5,7 @@
 #include "FlashSave.h"
 
 /* ============================================================================
- *  【新增文件】遥控实现
+ * 遥控实现
  *
  *  为什么遥控和巡线要互斥？
  *    两边都在直接写电机。如果巡线 PID 每 5ms 覆盖一次遥控的输出，
@@ -19,9 +19,9 @@
 #define REMOTE_SPEED		400
 
 /* 保持当前输出（按下 FWD 后没有新指令也持续前进），直到收到下一条指令 */
-static const char *s_state = "IDLE";
+const char *s_state = "IDLE";
 
-static void SetState(const char *st)
+void SetState(const char *st)
 {
 	s_state = st;
 
@@ -38,7 +38,7 @@ void Remote_Handle(const char *cmd)
 	}
 
 	/* cmd 已被 serial.c 转成大写 */
-	if (0)
+	if (0)       //如果想要预留一段命令，就写在这里，想要启用直接改0即可
 	{
 	}
 	else if (cmd[0] == 'F' && cmd[1] == 'W' && cmd[2] == 'D')

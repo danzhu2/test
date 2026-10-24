@@ -2,7 +2,7 @@
 #include "Motor.h"
 
 /* ============================================================================
- *  【新增文件】TB6612 电机驱动实现
+ *  TB6612 电机驱动实现
  *
  *  PWM 频率选 20kHz 的原因：
  *    低于 16kHz 人耳能听到啸叫；过高则 MOS 开关损耗变大。
@@ -45,7 +45,7 @@
 
 /* -------------------------------------------------------------------------- */
 
-static void MotorDirPinsInit(void)
+void MotorDirPinsInit(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
@@ -66,7 +66,7 @@ static void MotorDirPinsInit(void)
 	GPIO_Init(MOTOR_STBY_PORT, &GPIO_InitStructure);
 }
 
-static void MotorPwmInit(void)
+void MotorPwmInit(void)
 {
 	GPIO_InitTypeDef      GPIO_InitStructure;
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
@@ -124,7 +124,7 @@ void Motor_Init(void)
 }
 
 /* 单轮方向脚设置。invert 处理电机安装方向反了的情况 */
-static void SetDir(GPIO_TypeDef *port1, uint16_t pin1,
+void SetDir(GPIO_TypeDef *port1, uint16_t pin1,
                    GPIO_TypeDef *port2, uint16_t pin2,
                    int16_t speed, uint8_t invert)
 {
@@ -150,13 +150,13 @@ void Motor_Set(int16_t left, int16_t right)
 	if (right >  1000) right =  1000;
 	if (right < -1000) right = -1000;
 
-	ccrL = (uint16_t)(((int32_t)(left  < 0 ? -left  : left) * PWM_MAX) / 1000);
+	ccrL = (uint16_t)(((int32_t)(left  < 0 ? -left  : left) * PWM_MAX) / 1000);       //设占空比数值
 	ccrR = (uint16_t)(((int32_t)(right < 0 ? -right : right) * PWM_MAX) / 1000);
 
 	SetDir(MOTOR_AIN1_PORT, MOTOR_AIN1_PIN, MOTOR_AIN2_PORT, MOTOR_AIN2_PIN, left,  MOTOR_L_DIR_INVERT);
 	SetDir(MOTOR_BIN1_PORT, MOTOR_BIN1_PIN, MOTOR_BIN2_PORT, MOTOR_BIN2_PIN, right, MOTOR_R_DIR_INVERT);
 
-	TIM_SetCompare1(TIM1, ccrL);
+	TIM_SetCompare1(TIM1, ccrL);   //占空比
 	TIM_SetCompare4(TIM1, ccrR);
 }
 
